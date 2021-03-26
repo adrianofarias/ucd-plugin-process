@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.urbancode.com/PluginXMLSchema_v1"
+        xmlns:server="http://www.urbancode.com/PluginServerXMLSchema_v1"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <header>
+    <identifier id="br.com.brb.urbancode.plugin" version="@API_VERSION@" name="Plugin BRB"/>
+    <description>Plugin BRB</description>
+    <tag>BRB</tag>
+  </header>
+  <step-type name="Aciona Processo em Lote">
+    <description>Aciona Processo do UrbanCode Deploy em Lote</description>
+    <properties>
+      <property name="process_id" required="true">
+        <property-ui type="textBox"
+                     label="ID do processo"
+                     description="ID do processo genérico do UrbanCode Deploy"/>
+      </property>
+      <property name="resource_id" required="true">
+        <property-ui type="textBox"
+                     label="ID do recurso"
+                     description="ID do recurso que irá executar o processo"/>
+      </property>      
+      <property name="execution_list" required="true">
+        <property-ui type="textAreaBox"
+                     label="Lista de Execução"
+                     description="Cada linha representa os paramentros de uma execucao do processo. O mapa deve seguir o formato JSON."/>
+      </property>
+    </properties>
+    <post-processing>
+      <![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put(new java.lang.String("Status"), new java.lang.String("Failure"));
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]>
+    </post-processing>
+
+    <command program="${GROOVY_HOME}/bin/groovy">
+      <arg value="-cp"/>
+      <arg path="classes:lib/groovy-plugin-utils-1.0.jar:lib/*"/>
+      <arg file="acionaProcessoEmLote.groovy"/>
+      <arg file="${PLUGIN_INPUT_PROPS}"/>
+      <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+    </command>
+  </step-type>
+</plugin>
